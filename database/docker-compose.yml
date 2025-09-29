@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-rest-postgres
+    environment:
+      # Estas variables sobrescriben las del Dockerfile si las necesitas diferentes
+      POSTGRES_DB: go_rest_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - go-rest-network
+
+volumes:
+  postgres_data:
+
+networks:
+  go-rest-network:
+    driver: bridge
