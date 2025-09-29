@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/farinas09/rest-ws/handlers"
+	"github.com/farinas09/rest-ws/middleware"
 	"github.com/farinas09/rest-ws/server"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -36,7 +37,9 @@ func main() {
 }
 
 func BindRoutes(s server.Server, r *mux.Router) {
+	r.Use(middleware.ValidateJWT(s))
 	r.HandleFunc("/", handlers.HomeHandler(s)).Methods("GET")
 	r.HandleFunc("/signup", handlers.SignUpHandler(s)).Methods("POST")
 	r.HandleFunc("/login", handlers.LoginHandler(s)).Methods("POST")
+	r.HandleFunc("/me", handlers.MeHandler(s)).Methods("GET")
 }

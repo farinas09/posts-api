@@ -14,24 +14,24 @@ type UserRepository interface {
 	Close(ctx context.Context) error
 }
 
-var implementation UserRepository
+var userImplementation UserRepository
 
-func SetRepository(repository UserRepository) {
-	implementation = repository
+func SetUserRepository(repository UserRepository) {
+	userImplementation = repository
 }
 
 func CreateUser(ctx context.Context, user *models.User) error {
-	return implementation.CreateUser(ctx, user)
+	return userImplementation.CreateUser(ctx, user)
 }
 
 func GetUser(ctx context.Context, id int64) (*models.User, error) {
-	return implementation.GetUser(ctx, id)
+	return userImplementation.GetUser(ctx, id)
 }
 
 func GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
-	return implementation.GetUserByEmail(ctx, email)
+	return userImplementation.GetUserByEmail(ctx, email)
 }
 
 func GetAllUsers(ctx context.Context) (*models.Users, error) {
-	return implementation.GetAllUsers(ctx)
+	return userImplementation.GetAllUsers(ctx)
 }
