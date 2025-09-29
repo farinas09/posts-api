@@ -3,9 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 	"time"
 
+	"github.com/farinas09/rest-ws/middleware"
 	"github.com/farinas09/rest-ws/models"
 	"github.com/farinas09/rest-ws/repository"
 	"github.com/farinas09/rest-ws/server"
@@ -108,26 +108,18 @@ func LoginHandler(s server.Server) http.HandlerFunc {
 
 func MeHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
-		token, err := jwt.ParseWithClaims(tokenString, &models.AppClaims{}, func(token *jwt.Token) (any, error) {
-			return []byte(s.Config().JWTSecret), nil
-		})
+
+		userId, ok := middleware.GetUserIdFromContext(r.Context())
+		if !ok {
+			http.Error(w, "User ID not found in context", http.StatusInternalServerError)
+			return
+		}
+		user, err := repository.GetUser(r.Context(), userId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		if claims, ok := token.Claims.(*models.AppClaims); ok && token.Valid {
-			user, err := repository.GetUser(r.Context(), claims.UserId)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(user)
-		} else {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
-			return
-		}
-
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(user)
 	}
 }

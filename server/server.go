@@ -50,13 +50,14 @@ func NewServer(ctx context.Context, config *Config) (*Broker, error) {
 
 func (b *Broker) Start(binder func(s Server, r *mux.Router)) {
 	//b.router = mux.NewRouter()
-	binder(b, b.router)
 	repo, err := database.NewPostgresRepository(b.Config().DatabaseUrl)
 	if err != nil {
 		log.Fatal("Error creating repository: ", err)
 	}
 	repository.SetUserRepository(repo)
 	repository.SetPostRepository(repo)
+
+	binder(b, b.router)
 	log.Println("Starting server on port", b.Config().Port)
 	if err := http.ListenAndServe(b.Config().Port, b.router); err != nil {
 		log.Fatal("ListenAndServe: ", err)
